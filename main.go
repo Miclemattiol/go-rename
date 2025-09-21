@@ -161,7 +161,7 @@ func main() {
 		newFilePath := config.formatPath(counter, fileExtension)
 		processedFilePath := config.processedPath(file.Name())
 
-		args, err := buildCommandArgs(config, counter, originalPath, newFilePath, *configFile)
+		args, err := buildCommandArgs(config, counter, originalPath, newFilePath, processedFilePath, *configFile)
 		if err != nil {
 			fmt.Println("Errore preparazione argomenti comando:", err)
 			continue
@@ -233,7 +233,7 @@ func main() {
 
 }
 
-func buildCommandArgs(cfg Config, counter int, srcPath, dstPath, cfgPath string) (commandArgs, error) {
+func buildCommandArgs(cfg Config, counter int, srcPath, dstPath, cmpPath, cfgPath string) (commandArgs, error) {
 	srcAbs, err := filepath.Abs(srcPath)
 	if err != nil {
 		return commandArgs{}, fmt.Errorf("absolute src path: %w", err)
@@ -242,9 +242,9 @@ func buildCommandArgs(cfg Config, counter int, srcPath, dstPath, cfgPath string)
 	if err != nil {
 		return commandArgs{}, fmt.Errorf("absolute dst path: %w", err)
 	}
-	cmpAbs, err := filepath.Abs(cfg.Elaborati)
+	cmpAbs, err := filepath.Abs(cmpPath)
 	if err != nil {
-		cmpAbs = cfg.Elaborati
+		return commandArgs{}, fmt.Errorf("absolute cmp path: %w", err)
 	}
 	cfgAbs, err := filepath.Abs(cfgPath)
 	if err != nil {
@@ -389,13 +389,13 @@ func renderCommand(template string, args commandArgs) string {
 		"$extensionCase", args.ExtensionCase,
 
 		// Alias legacy per compatibilità
-		"$fNameComp", args.DstFileName,
+		"$fNameComp", args.SrcFileName,
 		"$relFilePathComp", args.RelFilePathComp,
 		"$relPathComp", args.RelPathComp,
 		"$absFilePathComp", args.AbsFilePathComp,
 		"$absPathComp", args.AbsPathComp,
 
-		"$fName", args.SrcFileName,
+		"$fName", args.DstFileName,
 		"$relFilePath", args.RelFilePath,
 		"$relPath", args.RelPath,
 		"$absFilePath", args.AbsFilePath,
