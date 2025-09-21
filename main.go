@@ -268,10 +268,10 @@ func buildCommandArgs(cfg Config, counter int, srcPath, dstPath, cfgPath string)
 	if err != nil {
 		return commandArgs{}, fmt.Errorf("absolute destination root: %w", err)
 	}
-	cmpRootAbs, err := filepath.Abs(cmpAbs)
-	if err != nil {
-		return commandArgs{}, fmt.Errorf("absolute processed root: %w", err)
-	}
+	// cmpRootAbs, err := filepath.Abs(cmpAbs)
+	// if err != nil {
+	// 	return commandArgs{}, fmt.Errorf("absolute processed root: %w", err)
+	// }
 
 
 	srcRelFile, err := filepath.Rel(srcRootAbs, srcAbs)
