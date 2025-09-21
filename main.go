@@ -3,14 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
-	"io"
 	"time"
 	"gopkg.in/ini.v1"
-	"os/exec"
 )
 
 var defaultConfigFile = "config.ini"
@@ -335,7 +336,15 @@ func executeConfiguredCommand(template string, args commandArgs) error {
         return nil
     }
 
-    cmd := exec.Command("bash", "-lc", rendered)
+    var cmd *exec.Cmd
+    if runtime.GOOS == "windows" {
+        // usa cmd.exe su Windows
+        cmd = exec.Command("cmd", "/C", rendered)
+    } else {
+        // sh funziona su Linux / macOS / *nix
+        cmd = exec.Command("sh", "-c", rendered)
+    }
+	
     cmd.Stdout = os.Stdout
     cmd.Stderr = os.Stderr
     cmd.Stdin = os.Stdin
