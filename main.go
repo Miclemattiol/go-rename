@@ -172,20 +172,21 @@ func main() {
 			fmt.Println("Errore apertura file sorgente:", err)
 			continue
 		}
-		defer src.Close()
-
+		
 		dst, err := os.Create(newFilePath)
 		if err != nil {
 			fmt.Println("Errore creazione file destinazione:", err)
 			continue
 		}
-		defer dst.Close()
-
+		
 		_, err = io.Copy(dst, src)
 		if err != nil {
 			fmt.Println("Errore copia file:", err)
 			continue
 		}
+
+		src.Close()
+		dst.Close()
 
 		// Sposto il file originale nella cartella elaborati
 		err = os.Rename(originalPath, processedFilePath)
