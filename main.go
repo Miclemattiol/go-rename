@@ -242,6 +242,10 @@ func buildCommandArgs(cfg Config, counter int, srcPath, dstPath, cfgPath string)
 	if err != nil {
 		return commandArgs{}, fmt.Errorf("absolute dst path: %w", err)
 	}
+	cmpAbs, err := filepath.Abs(cfg.Elaborati)
+	if err != nil {
+		cmpAbs = cfg.Elaborati
+	}
 	cfgAbs, err := filepath.Abs(cfgPath)
 	if err != nil {
 		return commandArgs{}, fmt.Errorf("absolute config path: %w", err)
@@ -264,6 +268,11 @@ func buildCommandArgs(cfg Config, counter int, srcPath, dstPath, cfgPath string)
 	if err != nil {
 		return commandArgs{}, fmt.Errorf("absolute destination root: %w", err)
 	}
+	cmpRootAbs, err := filepath.Abs(cmpAbs)
+	if err != nil {
+		return commandArgs{}, fmt.Errorf("absolute processed root: %w", err)
+	}
+
 
 	srcRelFile, err := filepath.Rel(srcRootAbs, srcAbs)
 	if err != nil {
@@ -307,25 +316,25 @@ func buildCommandArgs(cfg Config, counter int, srcPath, dstPath, cfgPath string)
 	}
 
 	// Relative path of file in elaborati from program root
-	RelFilePathComp, err := filepath.Rel(progRootAbs, dstAbs)
+	RelFilePathComp, err := filepath.Rel(progRootAbs, cmpAbs)
 	if err != nil {
-		RelFilePathComp = filepath.Base(dstAbs)
+		RelFilePathComp = filepath.Base(cmpAbs)
 	}
 
 	// Relative path of elaborati directory from program root
-	RelPathComp, err := filepath.Rel(progRootAbs, filepath.Dir(dstAbs))
+	RelPathComp, err := filepath.Rel(progRootAbs, filepath.Dir(cmpAbs))
 	if err != nil {
 		RelPathComp = "."
 	}
 
 	// Absolute path of file in elaborati
-	AbsFilePathComp, err := filepath.Abs(dstAbs)
+	AbsFilePathComp, err := filepath.Abs(cmpAbs)
 	if err != nil {
-		AbsFilePathComp = filepath.Base(dstAbs)
+		AbsFilePathComp = filepath.Base(cmpAbs)
 	}
 
 	// Absolute path of elaborati directory
-	AbsPathComp, err := filepath.Abs(filepath.Dir(dstAbs))
+	AbsPathComp, err := filepath.Abs(filepath.Dir(cmpAbs))
 	if err != nil {
 		AbsPathComp = "."
 	}
@@ -386,7 +395,7 @@ func renderCommand(template string, args commandArgs) string {
 		"$absFilePathComp", args.AbsFilePathComp,
 		"$absPathComp", args.AbsPathComp,
 
-		"$fName", args.DstFileName,
+		"$fName", args.SrcFileName,
 		"$relFilePath", args.RelFilePath,
 		"$relPath", args.RelPath,
 		"$absFilePath", args.AbsFilePath,
