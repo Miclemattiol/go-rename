@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"gopkg.in/ini.v1"
 	"io"
 	"os"
 	"os/exec"
@@ -11,7 +12,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"gopkg.in/ini.v1"
 )
 
 var defaultConfigFile = "config.ini"
@@ -25,7 +25,7 @@ func main() {
 	if configFile == nil || strings.TrimSpace(*configFile) == "" {
 		if _, err := os.Stat(defaultConfigFile); err == nil {
 			fmt.Println("Specificare le configurazioni con -config")
-		}else {
+		} else {
 			fmt.Println("Creazione del file di configurazione predefinito...")
 			file, err := os.Create("config.ini")
 			if err != nil {
@@ -39,7 +39,7 @@ func main() {
 				return
 			}
 			fmt.Println("File di configurazione creato: config.ini")
-		
+
 		}
 
 		return
@@ -173,13 +173,13 @@ func main() {
 			fmt.Println("Errore apertura file sorgente:", err)
 			continue
 		}
-		
+
 		dst, err := os.Create(newFilePath)
 		if err != nil {
 			fmt.Println("Errore creazione file destinazione:", err)
 			continue
 		}
-		
+
 		_, err = io.Copy(dst, src)
 		if err != nil {
 			fmt.Println("Errore copia file:", err)
@@ -220,7 +220,7 @@ func main() {
 
 		// Eseguo il comando opzionale se specificato TODO
 		// fmt.Println("Eseguo il comando")
-		
+
 		cmd := renderCommand(config.Comando, args)
 
 		err = executeConfiguredCommand(cmd, args)
@@ -234,53 +234,53 @@ func main() {
 }
 
 func buildCommandArgs(cfg Config, counter int, srcPath, dstPath, cfgPath string) (commandArgs, error) {
-    srcAbs, err := filepath.Abs(srcPath)
-    if err != nil {
-        return commandArgs{}, fmt.Errorf("absolute src path: %w", err)
-    }
-    dstAbs, err := filepath.Abs(dstPath)
-    if err != nil {
-        return commandArgs{}, fmt.Errorf("absolute dst path: %w", err)
-    }
-    cfgAbs, err := filepath.Abs(cfgPath)
-    if err != nil {
-        return commandArgs{}, fmt.Errorf("absolute config path: %w", err)
-    }
+	srcAbs, err := filepath.Abs(srcPath)
+	if err != nil {
+		return commandArgs{}, fmt.Errorf("absolute src path: %w", err)
+	}
+	dstAbs, err := filepath.Abs(dstPath)
+	if err != nil {
+		return commandArgs{}, fmt.Errorf("absolute dst path: %w", err)
+	}
+	cfgAbs, err := filepath.Abs(cfgPath)
+	if err != nil {
+		return commandArgs{}, fmt.Errorf("absolute config path: %w", err)
+	}
 
-    progRoot, err := os.Getwd()
-    if err != nil {
-        progRoot = "."
-    }
-    progRootAbs, err := filepath.Abs(progRoot)
-    if err != nil {
-        progRootAbs = progRoot
-    }
+	progRoot, err := os.Getwd()
+	if err != nil {
+		progRoot = "."
+	}
+	progRootAbs, err := filepath.Abs(progRoot)
+	if err != nil {
+		progRootAbs = progRoot
+	}
 
 	srcRootAbs, err := filepath.Abs(cfg.Sorgente)
-    if err != nil {
-        return commandArgs{}, fmt.Errorf("absolute source root: %w", err)
-    }
-    dstRootAbs, err := filepath.Abs(cfg.Destinazione)
-    if err != nil {
-        return commandArgs{}, fmt.Errorf("absolute destination root: %w", err)
-    }
+	if err != nil {
+		return commandArgs{}, fmt.Errorf("absolute source root: %w", err)
+	}
+	dstRootAbs, err := filepath.Abs(cfg.Destinazione)
+	if err != nil {
+		return commandArgs{}, fmt.Errorf("absolute destination root: %w", err)
+	}
 
-    srcRelFile, err := filepath.Rel(srcRootAbs, srcAbs)
-    if err != nil {
-        srcRelFile = filepath.Base(srcAbs)
-    }
-    srcRelDir, err := filepath.Rel(srcRootAbs, filepath.Dir(srcAbs))
-    if err != nil {
-        srcRelDir = "."
-    }
-    dstRelFile, err := filepath.Rel(dstRootAbs, dstAbs)
-    if err != nil {
-        dstRelFile = filepath.Base(dstAbs)
-    }
-    dstRelDir, err := filepath.Rel(dstRootAbs, filepath.Dir(dstAbs))
-    if err != nil {
-        dstRelDir = "."
-    }
+	srcRelFile, err := filepath.Rel(srcRootAbs, srcAbs)
+	if err != nil {
+		srcRelFile = filepath.Base(srcAbs)
+	}
+	srcRelDir, err := filepath.Rel(srcRootAbs, filepath.Dir(srcAbs))
+	if err != nil {
+		srcRelDir = "."
+	}
+	dstRelFile, err := filepath.Rel(dstRootAbs, dstAbs)
+	if err != nil {
+		dstRelFile = filepath.Base(dstAbs)
+	}
+	dstRelDir, err := filepath.Rel(dstRootAbs, filepath.Dir(dstAbs))
+	if err != nil {
+		dstRelDir = "."
+	}
 
 	// Relative path of file in destination from program root
 	relFilePath, err := filepath.Rel(progRootAbs, dstAbs)
@@ -317,7 +317,7 @@ func buildCommandArgs(cfg Config, counter int, srcPath, dstPath, cfgPath string)
 	if err != nil {
 		RelPathComp = "."
 	}
-	
+
 	// Absolute path of file in elaborati
 	AbsFilePathComp, err := filepath.Abs(dstAbs)
 	if err != nil {
@@ -330,90 +330,90 @@ func buildCommandArgs(cfg Config, counter int, srcPath, dstPath, cfgPath string)
 		AbsPathComp = "."
 	}
 
-    srcFileName := filepath.Base(srcAbs)
-    dstFileName := filepath.Base(dstAbs)
-    srcExt := strings.TrimPrefix(filepath.Ext(srcFileName), ".")
-    dstExt := strings.TrimPrefix(filepath.Ext(dstFileName), ".")
+	srcFileName := filepath.Base(srcAbs)
+	dstFileName := filepath.Base(dstAbs)
+	srcExt := strings.TrimPrefix(filepath.Ext(srcFileName), ".")
+	dstExt := strings.TrimPrefix(filepath.Ext(dstFileName), ".")
 
-    return commandArgs{
-        SrcFileName:    srcFileName,
-        SrcFileBase:    strings.TrimSuffix(srcFileName, filepath.Ext(srcFileName)),
-        SrcFileExt:     srcExt,
-        SrcFilePath:    srcAbs,
-        SrcDirPath:     filepath.Dir(srcAbs),
-        SrcRelFilePath: srcRelFile,
-        SrcRelDirPath:  srcRelDir,
-        DstDirPath:     filepath.Dir(dstAbs),
-        DstFileName:    dstFileName,
-        DstFilePath:    dstAbs,
-        DstRelFilePath: dstRelFile,
-        DstRelDirPath:  dstRelDir,
-        Counter:       fmt.Sprintf("%d", counter),
-        ConfigDir:     filepath.Dir(cfgAbs),
-        Timestamp:     time.Now().Format("20060102_150405"),
-        ExtensionCase: dstExt, // adatta qui se devi forzare upper/lower case
+	return commandArgs{
+		SrcFileName:    srcFileName,
+		SrcFileBase:    strings.TrimSuffix(srcFileName, filepath.Ext(srcFileName)),
+		SrcFileExt:     srcExt,
+		SrcFilePath:    srcAbs,
+		SrcDirPath:     filepath.Dir(srcAbs),
+		SrcRelFilePath: srcRelFile,
+		SrcRelDirPath:  srcRelDir,
+		DstDirPath:     filepath.Dir(dstAbs),
+		DstFileName:    dstFileName,
+		DstFilePath:    dstAbs,
+		DstRelFilePath: dstRelFile,
+		DstRelDirPath:  dstRelDir,
+		Counter:        fmt.Sprintf("%d", counter),
+		ConfigDir:      filepath.Dir(cfgAbs),
+		Timestamp:      time.Now().Format("20060102_150405"),
+		ExtensionCase:  dstExt, // adatta qui se devi forzare upper/lower case
 
-		RelFilePath: 	relFilePath,
-		RelPath: 		relPath,
-		AbsFilePath: 	AbsFilePath,
-		AbsPath: 		AbsPath,
+		RelFilePath:     relFilePath,
+		RelPath:         relPath,
+		AbsFilePath:     AbsFilePath,
+		AbsPath:         AbsPath,
 		RelFilePathComp: RelFilePathComp,
-		RelPathComp: 	RelPathComp,
+		RelPathComp:     RelPathComp,
 		AbsFilePathComp: AbsFilePathComp,
-		AbsPathComp: 	AbsPathComp,
-    }, nil
+		AbsPathComp:     AbsPathComp,
+	}, nil
 }
 
 func renderCommand(template string, args commandArgs) string {
-    replacements := []string{
-        "$srcFileName", args.SrcFileName,
-        "$srcFileBase", args.SrcFileBase,
-        "$srcFileExt", args.SrcFileExt,
-        "$srcFilePath", args.SrcFilePath,
-        "$srcDirPath", args.SrcDirPath,
-        "$dstDirPath", args.DstDirPath,
-        "$dstFileName", args.DstFileName,
-        "$dstFilePath", args.DstFilePath,
-        "$counter", args.Counter,
-        "$configDir", args.ConfigDir,
-        "$timestamp", args.Timestamp,
-        "$extensionCase", args.ExtensionCase,
+	replacements := []string{
+		"$srcFileName", args.SrcFileName,
+		"$srcFileBase", args.SrcFileBase,
+		"$srcFileExt", args.SrcFileExt,
+		"$srcFilePath", args.SrcFilePath,
+		"$srcDirPath", args.SrcDirPath,
+		"$dstDirPath", args.DstDirPath,
+		"$dstFileName", args.DstFileName,
+		"$dstFilePath", args.DstFilePath,
+		"$counter", args.Counter,
+		"$configDir", args.ConfigDir,
+		"$timestamp", args.Timestamp,
+		"$extensionCase", args.ExtensionCase,
 
 		// Alias legacy per compatibilità
-    "$fName", args.DstFileName,
-    "$relFilePath", args.RelFilePath,
-    "$relPath", args.RelPath,
-    "$absFilePath", args.AbsFilePath,
-    "$absPath", args.AbsPath,
+		"$fNameComp", args.DstFileName,
+		"$relFilePathComp", args.RelFilePathComp,
+		"$relPathComp", args.RelPathComp,
+		"$absFilePathComp", args.AbsFilePathComp,
+		"$absPathComp", args.AbsPathComp,
 
-    "$fNameComp", args.DstFileName,
-    "$relFilePathComp", args.RelFilePathComp,
-    "$relPathComp", args.RelPathComp,
-    "$absFilePathComp", args.AbsFilePathComp,
-    "$absPathComp", args.AbsPathComp,
-    }
-    replacer := strings.NewReplacer(replacements...)
-    return replacer.Replace(template)
+		"$fName", args.DstFileName,
+		"$relFilePath", args.RelFilePath,
+		"$relPath", args.RelPath,
+		"$absFilePath", args.AbsFilePath,
+		"$absPath", args.AbsPath,
+	}
+	replacer := strings.NewReplacer(replacements...)
+	return replacer.Replace(template)
 }
 
 func executeConfiguredCommand(template string, args commandArgs) error {
-    rendered := strings.TrimSpace(renderCommand(template, args))
-    if rendered == "" {
-        return nil
-    }
+	rendered := strings.TrimSpace(renderCommand(template, args))
+	if rendered == "" {
+		return nil
+	}
 
-    var cmd *exec.Cmd
-    if runtime.GOOS == "windows" {
-        // usa cmd.exe su Windows
-        cmd = exec.Command("cmd", "/C", rendered)
-    } else {
-        // sh funziona su Linux / macOS / *nix
-        cmd = exec.Command("sh", "-c", rendered)
-    }
-	
-    cmd.Stdout = os.Stdout
-    cmd.Stderr = os.Stderr
-    cmd.Stdin = os.Stdin
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		// usa cmd.exe su Windows
+		cmd = exec.Command("cmd", "/C", rendered)
+	} else {
+		// sh funziona su Linux / macOS / *nix
+		cmd = exec.Command("sh", "-c", rendered)
+	}
 
-    return cmd.Run()
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+
+	return cmd.Run()
 }
