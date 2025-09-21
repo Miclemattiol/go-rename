@@ -247,6 +247,15 @@ func buildCommandArgs(cfg Config, counter int, srcPath, dstPath, cfgPath string)
         return commandArgs{}, fmt.Errorf("absolute config path: %w", err)
     }
 
+    progRoot, err := os.Getwd()
+    if err != nil {
+        progRoot = "."
+    }
+    progRootAbs, err := filepath.Abs(progRoot)
+    if err != nil {
+        progRootAbs = progRoot
+    }
+
 	srcRootAbs, err := filepath.Abs(cfg.Sorgente)
     if err != nil {
         return commandArgs{}, fmt.Errorf("absolute source root: %w", err)
@@ -273,6 +282,54 @@ func buildCommandArgs(cfg Config, counter int, srcPath, dstPath, cfgPath string)
         dstRelDir = "."
     }
 
+	// Relative path of file in destination from program root
+	relFilePath, err := filepath.Rel(progRootAbs, dstAbs)
+	if err != nil {
+		relFilePath = filepath.Base(dstAbs)
+	}
+
+	// Relative path of destination directory from program root
+	relPath, err := filepath.Rel(progRootAbs, filepath.Dir(dstAbs))
+	if err != nil {
+		relPath = "."
+	}
+
+	// Relative path of file in destination
+	AbsFilePath, err := filepath.Abs(dstAbs)
+	if err != nil {
+		AbsFilePath = filepath.Base(dstAbs)
+	}
+
+	// Absolute path of destination directory
+	AbsPath, err := filepath.Abs(filepath.Dir(dstAbs))
+	if err != nil {
+		AbsPath = "."
+	}
+
+	// Relative path of file in elaborati from program root
+	RelFilePathComp, err := filepath.Rel(progRootAbs, dstAbs)
+	if err != nil {
+		RelFilePathComp = filepath.Base(dstAbs)
+	}
+
+	// Relative path of elaborati directory from program root
+	RelPathComp, err := filepath.Rel(progRootAbs, filepath.Dir(dstAbs))
+	if err != nil {
+		RelPathComp = "."
+	}
+	
+	// Absolute path of file in elaborati
+	AbsFilePathComp, err := filepath.Abs(dstAbs)
+	if err != nil {
+		AbsFilePathComp = filepath.Base(dstAbs)
+	}
+
+	// Absolute path of elaborati directory
+	AbsPathComp, err := filepath.Abs(filepath.Dir(dstAbs))
+	if err != nil {
+		AbsPathComp = "."
+	}
+
     srcFileName := filepath.Base(srcAbs)
     dstFileName := filepath.Base(dstAbs)
     srcExt := strings.TrimPrefix(filepath.Ext(srcFileName), ".")
@@ -295,6 +352,15 @@ func buildCommandArgs(cfg Config, counter int, srcPath, dstPath, cfgPath string)
         ConfigDir:     filepath.Dir(cfgAbs),
         Timestamp:     time.Now().Format("20060102_150405"),
         ExtensionCase: dstExt, // adatta qui se devi forzare upper/lower case
+
+		RelFilePath: 	relFilePath,
+		RelPath: 		relPath,
+		AbsFilePath: 	AbsFilePath,
+		AbsPath: 		AbsPath,
+		RelFilePathComp: RelFilePathComp,
+		RelPathComp: 	RelPathComp,
+		AbsFilePathComp: AbsFilePathComp,
+		AbsPathComp: 	AbsPathComp,
     }, nil
 }
 
@@ -314,17 +380,17 @@ func renderCommand(template string, args commandArgs) string {
         "$extensionCase", args.ExtensionCase,
 
 		// Alias legacy per compatibilità
-    "$fName", args.SrcFileName,
-    "$relFilePath", args.SrcRelFilePath,
-    "$relPath", args.SrcRelDirPath,
-    "$absFilePath", args.SrcFilePath,
-    "$absPath", args.SrcDirPath,
+    "$fName", args.DstFileName,
+    "$relFilePath", args.RelFilePath,
+    "$relPath", args.RelPath,
+    "$absFilePath", args.AbsFilePath,
+    "$absPath", args.AbsPath,
 
     "$fNameComp", args.DstFileName,
-    "$relFilePathComp", args.DstRelFilePath,
-    "$relPathComp", args.DstRelDirPath,
-    "$absFilePathComp", args.DstFilePath,
-    "$absPathComp", args.DstDirPath,
+    "$relFilePathComp", args.RelFilePathComp,
+    "$relPathComp", args.RelPathComp,
+    "$absFilePathComp", args.AbsFilePathComp,
+    "$absPathComp", args.AbsPathComp,
     }
     replacer := strings.NewReplacer(replacements...)
     return replacer.Replace(template)

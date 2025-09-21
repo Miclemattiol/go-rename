@@ -65,4 +65,12 @@ type commandArgs struct {
 	SrcRelDirPath string
 	DstRelFilePath string
 	DstRelDirPath string
+	RelFilePath  string
+	RelPath 	string
+	AbsFilePath 	string
+	AbsPath 	string
+	RelFilePathComp  string
+	RelPathComp 	string
+	AbsFilePathComp 	string
+	AbsPathComp 	string
 }
