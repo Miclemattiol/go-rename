@@ -109,12 +109,15 @@ func main() {
 			fmt.Println("Errore creazione file di contatore:", err)
 			return
 		}
+		time.Sleep(1 * time.Second)
 		defer file.Close()
 		_, err = file.WriteString("0")
 		if err != nil {
 			fmt.Println("Errore scrittura file di contatore:", err)
 			return
 		}
+
+		time.Sleep(1 * time.Second)
 	} else {
 		data, err := os.ReadFile(config.counterFilePath())
 		if err != nil {
@@ -135,12 +138,14 @@ func main() {
 			fmt.Println("Errore creazione file di mappatura:", err)
 			return
 		}
+		time.Sleep(1 * time.Second)
 		defer file.Close()
 		_, err = file.WriteString("Indice,Originale,Rinominato\n")
 		if err != nil {
 			fmt.Println("Errore scrittura file di mappatura:", err)
 			return
 		}
+		time.Sleep(1 * time.Second)
 	}
 
 	fmt.Printf("Configurazione caricata correttamente: %+v\n", config)
@@ -185,6 +190,7 @@ func main() {
 			fmt.Println("Errore copia file:", err)
 			continue
 		}
+		time.Sleep(1 * time.Second)
 
 		src.Close()
 		dst.Close()
@@ -195,6 +201,7 @@ func main() {
 			fmt.Println("Errore spostamento file originale:", err)
 			continue
 		}
+		time.Sleep(1 * time.Second)
 
 		// Aggiorno il file di mappatura
 		mapFile, err := os.OpenFile(config.mapFilePath(), os.O_APPEND|os.O_WRONLY, 0644)
@@ -203,12 +210,14 @@ func main() {
 			continue
 		}
 		defer mapFile.Close()
+		time.Sleep(1 * time.Second)
 
 		_, err = mapFile.WriteString(fmt.Sprintf("%d,%s,%s\n", counter, file.Name(), filepath.Base(newFilePath)))
 		if err != nil {
 			fmt.Println("Errore scrittura file di mappatura:", err)
 			continue
 		}
+		time.Sleep(1 * time.Second)
 
 		// Incremento il contatore e aggiorno il file di contatore
 		counter++
@@ -217,17 +226,21 @@ func main() {
 			fmt.Println("Errore aggiornamento file di contatore:", err)
 			continue
 		}
+		time.Sleep(1 * time.Second)
 
 		// Eseguo il comando opzionale se specificato TODO
 		// fmt.Println("Eseguo il comando")
 
 		cmd := renderCommand(config.Comando, args)
 
+		fmt.Println(cmd)
+
 		err = executeConfiguredCommand(cmd, args)
 		if err != nil {
 			fmt.Println("Errore esecuzione comando:", err)
 			continue
 		}
+		time.Sleep(1 * time.Second)
 
 	}
 
